@@ -15,7 +15,7 @@ AABGASCharacterPlayer::AABGASCharacterPlayer()
 	ASC = nullptr;
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattleGAS/Animation/AM_ComboAttack.AM_ComboAttack'"));
-	if (ComboActionMontageRef.Object)
+	if (ComboActionMontageRef.Succeeded())
 	{
 		ComboActionMontage = ComboActionMontageRef.Object;
 	}
