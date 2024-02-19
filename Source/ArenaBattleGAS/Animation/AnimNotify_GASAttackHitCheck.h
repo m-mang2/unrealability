@@ -26,4 +26,7 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere)
 	FGameplayTag TriggerGamePlayTag;
+
+	UPROPERTY(EditAnywhere)
+	float ComoboAttackLevel;
 };
