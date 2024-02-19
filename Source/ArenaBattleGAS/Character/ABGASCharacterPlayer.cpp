@@ -6,6 +6,10 @@
 #include "Player/ABGASPlayerState.h"
 #include "EnhancedInputComponent.h"
 #include "GameplayAbilitySpec.h"
+#include "UI/ABGASWidgetComponent.h"
+#include "UI/ABGASUserWidget.h"
+#include <Attribute/ABCharacterAttributeSet.h>
+
 
 
 AABGASCharacterPlayer::AABGASCharacterPlayer()
@@ -18,6 +22,18 @@ AABGASCharacterPlayer::AABGASCharacterPlayer()
 	if (ComboActionMontageRef.Succeeded())
 	{
 		ComboActionMontage = ComboActionMontageRef.Object;
+	}
+
+	HpBar =CreateDefaultSubobject<UABGASWidgetComponent>(TEXT("Widget"));
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidget(TEXT("/Game/ArenaBattle/UI/WBP_HpBar.WBP_HpBar_C"));
+	if (HpBarWidget.Succeeded())
+	{
+		HpBar->SetWidgetClass(HpBarWidget.Class);
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBar->SetDrawSize(FVector2D(200.0f, 20.0f));
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
 
@@ -36,6 +52,11 @@ void AABGASCharacterPlayer::PossessedBy(AController* NewController)
 	{
 		ASC = GASPS->GetAbilitySystemComponent();
 		ASC->InitAbilityActorInfo(GASPS, this);
+		const UABCharacterAttributeSet* AttributeSet = ASC->GetSet<UABCharacterAttributeSet>();
+		if (AttributeSet)
+		{
+			AttributeSet->OnOutOfHealth.AddDynamic(this, &ThisClass::OnOutOfHealth);
+		}
 
 		int32 InputID = 0;
 		for (const auto& StartAbility : StartAbilities)
@@ -110,4 +131,9 @@ void AABGASCharacterPlayer::GASInputReleased(int32 InputID)
 			ASC->AbilitySpecInputReleased(*Spec);
 		}
 	}
+}
+
+void AABGASCharacterPlayer::OnOutOfHealth()
+{
+	SetDead();
 }

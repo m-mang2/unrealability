@@ -28,6 +28,9 @@ protected:
 	void GASInputPressed(int32 InputID);
 	void GASInputReleased(int32 InputID);
 
+	UFUNCTION()
+	virtual void OnOutOfHealth();
+
 protected:
 	UPROPERTY(EditAnywhere, Category=GAS)
 	TObjectPtr<class UAbilitySystemComponent> ASC;
@@ -37,4 +40,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category=GAS)
 	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UABGASWidgetComponent> HpBar;
 };

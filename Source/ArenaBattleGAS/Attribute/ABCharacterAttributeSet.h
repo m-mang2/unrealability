@@ -13,6 +13,8 @@
  	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
  	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
  	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOutOfHealthDelegate);
 /**
  * 
  */
@@ -41,8 +43,10 @@ public:
 	//virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 
 	// 게임플레이 이펙트를 가지고 활용
-	//virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) { return true; }
+	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)override;
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
+	mutable FOutOfHealthDelegate OnOutOfHealth; // get/set들이 const로 설정되어 있어서 mutable키워드를 통해서 constd에서 열외 시킴 ,물론 const_cast써도됨
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData AttackRange;
@@ -61,11 +65,13 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Health;
-	UPROPERTY(BlueprintReadOnly, Category = "Health", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxHealth;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Damage;
 
+	bool bOutOfHealth = false;
+	
 	friend class UABGE_AttackDamage;
 };
