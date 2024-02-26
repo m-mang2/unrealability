@@ -31,4 +31,7 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float CurrentLevel;
+
+	UPROPERTY(EditAnywhere, Category = "GAS")
+	TSubclassOf<class AABTA_Trace> TargetActorClass;
 };

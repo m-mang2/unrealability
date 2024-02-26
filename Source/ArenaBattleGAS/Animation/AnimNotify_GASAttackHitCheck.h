@@ -24,7 +24,7 @@ protected:
 
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta=(Categories=Event))
 	FGameplayTag TriggerGamePlayTag;
 
 	UPROPERTY(EditAnywhere)

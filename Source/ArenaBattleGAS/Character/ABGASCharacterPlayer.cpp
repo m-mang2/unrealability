@@ -45,6 +45,12 @@ AABGASCharacterPlayer::AABGASCharacterPlayer()
 
 	WeaponRange = 75.0;
 	WeaponAttackRate = 100.0;
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattleGAS/Animation/AM_SkillAttack.AM_SkillAttack'"));
+	if (SkillActionMontageRef.Succeeded())
+	{
+		SkillActionMontage = SkillActionMontageRef.Object;
+	}
 }
 
 UAbilitySystemComponent* AABGASCharacterPlayer::GetAbilitySystemComponent() const
@@ -114,6 +120,8 @@ void AABGASCharacterPlayer::SetupGASInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AABGASCharacterPlayer::GASInputReleased, 0);
 
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AABGASCharacterPlayer::GASInputPressed, 1);
+
+		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AABGASCharacterPlayer::GASInputPressed, 2);
 	}
 }
 
@@ -157,6 +165,15 @@ void AABGASCharacterPlayer::EquipWeapon(const FGameplayEventData* EventData)
 	if (Weapon && WeaponMesh)
 	{
 		Weapon->SetSkeletalMesh(WeaponMesh);
+
+		FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
+		NewSkillSpec.InputID = 2; // 입력의 구별이 필요
+		if (ASC->FindAbilitySpecFromClass(SkillAbilityClass) == false)
+		{
+			ASC->GiveAbility(NewSkillSpec);
+		}
+
+
 		// 바람직한 방법은 아니나...이런것도 있다.. 이펙트 사용할것
 		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRangeAttribute());
 		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRateAttribute());
@@ -171,6 +188,12 @@ void AABGASCharacterPlayer::UnequipWeapon(const FGameplayEventData* EventData)
 	if (Weapon)
 	{
 		Weapon->SetSkeletalMesh(nullptr);
+
+		FGameplayAbilitySpec* FindSkillSpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
+		if (FindSkillSpec)
+		{
+			ASC->ClearAbility(FindSkillSpec->Handle);
+		}
 
 		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRangeAttribute());
 		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRateAttribute());
